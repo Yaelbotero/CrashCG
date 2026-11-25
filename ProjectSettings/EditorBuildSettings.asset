@@ -6,7 +6,25 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/MenuPrincipal.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/SelectorNiveles.unity
+    guid: 565062bd43a4c1f45bf6ef32bd72dba1
+  - enabled: 1
+    path: Assets/Scenes/Gee Wiz.unity
+    guid: d1c03ce2784184942b044660bbeb9c23
+  - enabled: 1
+    path: Assets/Scenes/Toad Village.unity
+    guid: 42573db701c6c0447b45c6129c9de356
+  - enabled: 1
+    path: Assets/Scenes/Estampida.unity
+    guid: 14daf9d74a0074444b3ce8b758c32d48
+  - enabled: 1
+    path: Assets/Scenes/Fase1_Prototipo.unity
+    guid: 1c356f0109feaa345ada00ccd4a335a7
+  - enabled: 1
+    path: Assets/Scenes/Final_Cortex.unity
+    guid: c619eb56be555fc479f115e5dc55b6d1
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
