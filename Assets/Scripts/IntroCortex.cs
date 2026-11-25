@@ -24,8 +24,6 @@ public class IntroCortex : MonoBehaviour
     public Image fundido;
     public LineaDialogo[] lineas;
     public GameObject panelMenu;
-    public GameObject panelOpciones;
-    public Slider barraVolumen;
     public GameObject textoSaltar;
     //Puntos donde Cortex se queda flotando mientras habla
     public Vector3[] puntosHablar = { new Vector3(0.6f, 0.1f, 0f), new Vector3(-0.7f, 0.3f, 0.4f), new Vector3(0.2f, -0.1f, -0.6f) };
@@ -50,15 +48,12 @@ void Start()
         cajaDialogo.SetActive(false);
         if (imagenDialogo != null) imagenDialogo.gameObject.SetActive(false);
         panelMenu.SetActive(false);
-        panelOpciones.SetActive(false);
         if (textoSaltar != null) textoSaltar.SetActive(false);
         fundido.color = Color.black;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
         AudioListener.volume = PlayerPrefs.GetFloat("volumen", 1f);
-        barraVolumen.value = AudioListener.volume;
-        barraVolumen.onValueChanged.AddListener(CambiarVolumen);
         StartCoroutine(AbrirPortal());
     }
 
@@ -112,23 +107,14 @@ private IEnumerator AbrirPortal()
     {
         if (enIntro) return;
         panelMenu.SetActive(false);
-        panelOpciones.SetActive(false);
         enIntro = true;
         if (textoSaltar != null) textoSaltar.SetActive(true);
         StartCoroutine(Secuencia());
     }
 
-    public void AbrirOpciones(bool abrir)
-    {
-        panelOpciones.SetActive(abrir);
-        panelMenu.SetActive(!abrir);
-    }
 
-    public void CambiarVolumen(float valor)
-    {
-        AudioListener.volume = valor;
-        PlayerPrefs.SetFloat("volumen", valor);
-    }
+
+
 
     public void SalirDelJuego()
     {

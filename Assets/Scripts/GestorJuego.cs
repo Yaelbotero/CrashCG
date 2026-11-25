@@ -59,8 +59,6 @@ public class GestorJuego : MonoBehaviour
     private Text txtTiempo;
     private GameObject panelPausa;
     private GameObject panelGameOver;
-    private GameObject panelVictoria;
-    private Text txtResumenVictoria;
 
     private void Awake()
     {
@@ -255,7 +253,6 @@ public class GestorJuego : MonoBehaviour
     {
         if (juegoTerminado) return;
 
-        //Si rompe todas las cajas activamos la gema
         if (cajasTotales > 0 && cajasRotas >= cajasTotales)
         {
             gemaObtenida = true;
@@ -277,24 +274,15 @@ public class GestorJuego : MonoBehaviour
         }
 
         juegoTerminado = true;
-        Time.timeScale = 0f;
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-
-        if (txtResumenVictoria != null)
-        {
-            string estadoCristal = cristalObtenido ? "SI" : "NO";
-            string estadoGema = gemaObtenida ? "SI" : "NO";
-            string tiempoTexto = timeTrialActivo ? FormatearTiempo(tiempoTranscurrido) : "Sin Time Trial";
-            txtResumenVictoria.text =
-                $"Cajas: {cajasRotas} / {cajasTotales} | Wumpas: {wumpas}\n" +
-                $"Cristal: {estadoCristal} | Gema: {estadoGema}\n" +
-                $"Reliquia: {reliquiaObtenida} | Tiempo: {tiempoTexto}";
-        }
-
-        if (panelVictoria != null) panelVictoria.SetActive(true);
         ReproducirSFX("victory");
         ActualizarHUD();
+        StartCoroutine(VolverAlSelector());
+    }
+
+    private IEnumerator VolverAlSelector()
+    {
+        yield return new WaitForSecondsRealtime(1.2f);
+        IrAlMenu();
     }
 
     public void AlternarPausa()
@@ -435,7 +423,6 @@ private void InicializarAudio()
 
         panelPausa = CrearModal(root, fuente, "PAUSA", "Juego en pausa", out _, "Continuar", AlternarPausa, "Reiniciar", ReiniciarNivel, "Elegir nivel", IrAlMenu);
         panelGameOver = CrearModal(root, fuente, "FIN DEL JUEGO", "Te has quedado sin vidas", out _, "Reintentar", ReiniciarNivel, "Elegir nivel", IrAlMenu, null, null);
-        panelVictoria = CrearModal(root, fuente, "NIVEL COMPLETADO", "", out txtResumenVictoria, "Jugar de nuevo", ReiniciarNivel, "Elegir nivel", IrAlMenu, null, null);
     }
 
     private GameObject CrearPanel(Transform padre, string nombre, Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 pos, Vector2 size, Color color)

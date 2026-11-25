@@ -53990,6 +53990,9 @@ MonoBehaviour:
   puntosRetraso: 2
   giroVistaBonus: 78
   prefijoOcultoBonus: Torreon_Bonus
+  camaraEnRiel: 1
+  distanciaRiel: 7.5
+  alturaRiel: 3.6
 --- !u!114 &1425876059
 MonoBehaviour:
   m_ObjectHideFlags: 0

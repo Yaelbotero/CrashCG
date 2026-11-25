@@ -25,7 +25,13 @@ public class Camara : MonoBehaviour
     public float giroVistaBonus = 90f;
     //Objetos que se esconden en el bonus porque quedan entre la camara y Crash
     public string prefijoOcultoBonus = "Torreon_Bonus";
+    //En la persecucion la camara va sobre la ruta, delante de Crash, para no salirse de la cueva en las curvas
+    public bool camaraEnRiel = false;
+    public float distanciaRiel = 7.5f;
+    public float alturaRiel = 3.6f;
     private float rumboRuta = 0f;
+    private Vector3[] puntosRiel;
+    private float[] recorridoRiel;
 
     private float rotXBase;
     private float rotYBase;
@@ -49,6 +55,17 @@ public class Camara : MonoBehaviour
         distBase = distanceTarget;
         distanciaActual = distanceTarget;
         posSinTemblor = transform.position;
+
+        if (camaraEnRiel && rutaCamara != null && rutaCamara.childCount > 1)
+        {
+            puntosRiel = new Vector3[rutaCamara.childCount];
+            recorridoRiel = new float[rutaCamara.childCount];
+            for (int i = 0; i < puntosRiel.Length; i++)
+            {
+                puntosRiel[i] = rutaCamara.GetChild(i).position;
+                recorridoRiel[i] = i == 0 ? 0f : recorridoRiel[i - 1] + Vector3.Distance(puntosRiel[i - 1], puntosRiel[i]);
+            }
+        }
     }
 
     //Sacude la camara; un temblor fuerte no lo tapa uno mas debil
@@ -93,6 +110,13 @@ public class Camara : MonoBehaviour
     void LateUpdate()
     {
         if (target == null) return;
+
+        if (puntosRiel != null && !vistaBonus)
+        {
+            SeguirRiel();
+            AplicarTemblor();
+            return;
+        }
 
         if (enTransicionVista)
         {
@@ -166,6 +190,55 @@ public class Camara : MonoBehaviour
             posSinTemblor = posDeseada;
         }
         transform.position = posSinTemblor;
+    }
+
+    //La camara se ubica sobre el centro del camino unos metros delante de Crash y lo mira de frente
+    void SeguirRiel()
+    {
+        float progreso = ProgresoRiel(target.position);
+        Vector3 delante = PuntoRiel(progreso + distanciaRiel);
+        Vector3 aqui = PuntoRiel(progreso);
+        Vector3 posDeseada = new Vector3(delante.x, Mathf.Max(delante.y, aqui.y) + alturaRiel, delante.z);
+        if (suavizado > 0.001f)
+        {
+            posSinTemblor = Vector3.SmoothDamp(posSinTemblor, posDeseada, ref velSuavizado, suavizado);
+        }
+        else
+        {
+            posSinTemblor = posDeseada;
+        }
+        transform.position = posSinTemblor;
+        Vector3 mira = target.position + offsetMira - posSinTemblor;
+        if (mira.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(mira);
+    }
+
+    float ProgresoRiel(Vector3 posicion)
+    {
+        int cercano = 0;
+        float mejor = float.MaxValue;
+        for (int i = 0; i < puntosRiel.Length; i++)
+        {
+            float d = (puntosRiel[i] - posicion).sqrMagnitude;
+            if (d < mejor)
+            {
+                mejor = d;
+                cercano = i;
+            }
+        }
+        int a = Mathf.Max(0, cercano - 1);
+        int b = Mathf.Min(puntosRiel.Length - 1, cercano + 1);
+        Vector3 tramo = puntosRiel[b] - puntosRiel[a];
+        float t = tramo.sqrMagnitude > 0.0001f ? Mathf.Clamp01(Vector3.Dot(posicion - puntosRiel[a], tramo) / tramo.sqrMagnitude) : 0f;
+        return Mathf.Lerp(recorridoRiel[a], recorridoRiel[b], t);
+    }
+
+    Vector3 PuntoRiel(float distancia)
+    {
+        distancia = Mathf.Clamp(distancia, 0f, recorridoRiel[recorridoRiel.Length - 1]);
+        int i = 1;
+        while (i < recorridoRiel.Length - 1 && recorridoRiel[i] < distancia) i++;
+        float t = Mathf.InverseLerp(recorridoRiel[i - 1], recorridoRiel[i], distancia);
+        return Vector3.Lerp(puntosRiel[i - 1], puntosRiel[i], t);
     }
 
     void AplicarTemblor()
